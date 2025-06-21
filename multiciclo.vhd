@@ -6,7 +6,7 @@ use work.riscv_pkg.all;
 entity Multiciclo is
     Port (
         clockCPU : in std_logic;
-        --clockMem : in std_logic;
+        clockMem : in std_logic;
         reset    : in std_logic;
         PC       : out std_logic_vector(31 downto 0);
         Instr    : out std_logic_vector(31 downto 0);
@@ -25,6 +25,7 @@ architecture Behavioral of Multiciclo is
     signal pcb_out	  : std_logic_vector(31 downto 0) := (others => '0');
     signal regout_reg  : std_logic_vector(31 downto 0) := (others => '0');
     signal estado_reg  : std_logic_vector(3 downto 0)  := (others => '0');
+	 signal Control_out : std_logic_vector(18 downto 0); --sinal saida do controle
 
     signal SaidaULA, Leitura2, B : std_logic_vector(31 downto 0);
     signal EscreveMem : std_logic := '0';
@@ -56,9 +57,9 @@ begin
 -- Instancia Controle/Controlar/Controlador
 	Control_Unit: entity work.control_unit 
 		port map(
-			clk 				=> clockCPU;
-			opcode 			: in std_logic_vector(6 downto 0);
-			control_signal : out std_logic_vector(18 downto 0)	
+			clk 				=> clockCPU,
+			opcode 			: in std_logic_vector(6 downto 0),
+			control_signal => Control_out	
 		);
 
 -- Instancia Banco de Registradores
@@ -90,10 +91,10 @@ begin
 --Instancia ULA Control
 	Alu_Control: entity work.alu_control 
 		port map(
-			bit_30 : in std_logic;
-			bits_14_12 : in std_logic_vector(2 downto 0);
-			AluOP : in std_logic_vector(1 downto 0);
-			AluBits : out std_logic_vector(4 downto 0)
+			bit_30 		: in std_logic;
+			bits_14_12 	: in std_logic_vector(2 downto 0),
+			AluOP 		=> Control_out(18 downto 17),  --REVISAR SE SERA 18 DOWNTO 17 OU 1 DOWNTO 0, PQ A ORDEM DA TABELA PODE ESTAR INVERTIDA
+			AluBits 		: out std_logic_vector(4 downto 0)
 		);
 		
 --Instancia Gerador de Imediatos
