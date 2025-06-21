@@ -6,7 +6,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.riscv_pkg.all;
 
-entity xreg is
+entity xregs is
 	generic (
 		SIZE : natural := 32;
 		ADDR : natural := 5
@@ -28,7 +28,7 @@ entity xreg is
 	);
 end entity;
 
-architecture rtl of xreg is
+architecture rtl of xregs is
 
 type banco is array (31 downto 0) of std_logic_vector(31 downto 0);
 constant ZERO32 : std_logic_vector(31 downto 0) := X"00000000";
