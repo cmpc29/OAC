@@ -52,14 +52,14 @@ set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name VHDL_FILE status_register.vhd
+set_global_assignment -name VHDL_FILE rom_despacho2.vhd
+set_global_assignment -name VHDL_FILE rom_despacho1.vhd
+set_global_assignment -name VHDL_FILE mux_next_state2.vhd
+set_global_assignment -name VHDL_FILE microcode_rom.vhd
+set_global_assignment -name VHDL_FILE control_unit.vhd
 set_global_assignment -name VHDL_FILE xreg.vhd
 set_global_assignment -name VHDL_FILE alu_control.vhd
-set_global_assignment -name VHDL_FILE ../../controle_multiciclo_def/controle_multiciclo/status_register.vhd
-set_global_assignment -name VHDL_FILE ../../controle_multiciclo_def/controle_multiciclo/rom_despacho2.vhd
-set_global_assignment -name VHDL_FILE ../../controle_multiciclo_def/controle_multiciclo/rom_despacho1.vhd
-set_global_assignment -name VHDL_FILE ../../controle_multiciclo_def/controle_multiciclo/mux_next_state2.vhd
-set_global_assignment -name VHDL_FILE ../../controle_multiciclo_def/controle_multiciclo/microcode_rom.vhd
-set_global_assignment -name VHDL_FILE ../../controle_multiciclo_def/controle_multiciclo/control_unit.vhd
 set_global_assignment -name VHDL_FILE riscv_pkg.vhd
 set_global_assignment -name VHDL_FILE ramI.vhd
 set_global_assignment -name VHDL_FILE ramD.vhd
