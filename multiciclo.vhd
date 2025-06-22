@@ -17,25 +17,58 @@ entity Multiciclo is
 end Multiciclo;
 
 architecture Behavioral of Multiciclo is
-
-    signal PC_in       : std_logic_vector(31 downto 0) := x"00400000";
+	 --Sinais relacionados ao Controle
+	 signal Control_out 		: std_logic_vector(18 downto 0); --sinal saida do controle
+	 signal Op_ALU  			: std_logic_vector(1 downto 0);
+	 signal OrigAlu 			: std_logic_vector(3 downto 0);
+    signal EscreveReg 		: std_logic := '0';
+	 signal Mem 				: std_logic_vector(1 downto 0); --???????
+	 signal EscreveIR 		: std_logic := '0';
+	 signal IouD  				: std_logic := '0';
+	 signal LeMem 				: std_logic := '0';
+	 signal EscreveMem 		: std_logic := '0';
+	 signal EscrevePCBack 	: std_logic := '0'; --EscrevePCB
+	 signal OrigPC 			: std_logic := '0';
+	 signal EscrevePCCond 	: std_logic := '0';
+	 signal wrPC 				: std_logic;  		  --EscrevePC
+	 signal Seq 				: std_logic_vector(1 downto 0); --?????
+	 --end
+	 
+	 signal PC_in       : std_logic_vector(31 downto 0) := x"00400000";
     signal PC_out      : std_logic_vector(31 downto 0) := x"00400000";
-    signal Instr_reg   : std_logic_vector(31 downto 0) := (others => '0');
-    signal EscrevePCBack : std_logic := '0';
-    signal pcb_out	  : std_logic_vector(31 downto 0) := (others => '0');
-    signal regout_reg  : std_logic_vector(31 downto 0) := (others => '0');
-    signal estado_reg  : std_logic_vector(3 downto 0)  := (others => '0');
-	 signal Control_out : std_logic_vector(18 downto 0); --sinal saida do controle
-
-    signal SaidaULA, Leitura2, B : std_logic_vector(31 downto 0);
-    signal EscreveMem : std_logic := '0';
-	 signal wrPC : std_logic;
-    signal proximo    : std_logic_vector(3 downto 0);
-
-    signal wIouD, MemData, rmem : std_logic_vector(31 downto 0);
-
+    
+    signal pcb_out	  : std_logic_vector(31 downto 0) := (others => '0'); --OutPCback
+    signal regout_reg  : std_logic_vector(31 downto 0) := (others => '0'); --??????
+    signal estado_reg  : std_logic_vector(3 downto 0)  := (others => '0'); --n usado
+	 
+	 signal RegDataA_out 			: std_logic_vector(31 downto 0); 			--Out signalA do bd registradores
+	 signal RegDataB_out 			: std_logic_vector(31 downto 0); 			--Out signalB do bd registradores
+	 signal Imediato 					: std_logic_vector(31 downto 0); 					--sinal que recebe o imediato
+    signal SaidaULA, Leitura2, B : std_logic_vector(31 downto 0); --leitura2 e B?????
+    signal proximo    				: std_logic_vector(3 downto 0); 				--n usado ?????
+	 signal AluBits 					: std_logic_vector(4 downto 0)
+	
+	--Sinais relacionados a Memorias de dados e instrucoes
+    signal wIouD, MemData, rmem : std_logic_vector(31 downto 0);  --relacionados a memoria
+	 signal Instr_reg   : std_logic_vector(31 downto 0) := (others => '0'); --outRegistradordeInst
 begin
-
+		--Sinais relacionados ao Controle
+	 Op_ALU  			<= Control_out(18 downto 17);
+	 OrigAlu 			<= Control_out(16 downto 13);
+    EscreveReg 		<= Control_out(12);
+	 Mem 					<= Control_out(11 downto 10); --?????
+	 EscreveIR 			<= Control_out(9);
+	 IouD  				<= Control_out(8);
+	 LeMem 				<= Control_out(7);
+	 EscreveMem 		<= Control_out(6);
+	 EscrevePCBack 	<= Control_out(5); 			   --EscrevePCB
+	 OrigPC 				<= Control_out(4);
+	 EscrevePCCond 	<= Control_out(3);
+	 wrPC 				<= Control_out(2); 			   --EscrevePC
+	 Seq 					<= Control_out(1 downto 0);   --?????
+		--end
+		
+		--wIouD <= Control_out(8) ACHO QUE ESTA ERRADO
     -- Sinais de saída
 --    PC     <= PC_reg;
 --    Instr  <= Instr_reg;
@@ -67,41 +100,40 @@ begin
 		port map(
 			iCLK		=> clockCPU;
 			iRST		: in  std_logic;
-			iWREN		: in  std_logic;
-			iRS1		: in  std_logic_vector(5-1 downto 0);
-			iRS2		: in  std_logic_vector(5-1 downto 0);
-			iRD		: in  std_logic_vector(5-1 downto 0);
-			iDATA		: in  std_logic_vector(32-1 downto 0);
-			oREGA 	: out std_logic_vector(32-1 downto 0);
-			oREGB 	: out std_logic_vector(32-1 downto 0);
-			
-			iDISP		: in  std_logic_vector(5-1 downto 0);
-			oREGD		: out std_logic_vector(32-1 downto 0)
+			iWREN		=> EscreveReg,
+			iRS1		=> Instr_reg(19 downto 15),
+			iRS2		=> Instr_reg(24 downto 20),
+			iRD		=> Instr_reg(11 downto 7),
+			iDATA		: in  std_logic_vector(31 downto 0);
+			oREGA 	=> RegDataA_out,
+			oREGB 	=> RegDataB_out,
+			iDISP		: in  std_logic_vector(4 downto 0);
+			oREGD		: out std_logic_vector(31 downto 0)
 		);
 
 --Instancia ULA
 	ALU: entity work.ALU 
 		 port map(
-			  iControl : in  std_logic_vector(4 downto 0);
+			  iControl => OrigAlu,
 			  iA       : in  std_logic_vector(31 downto 0);
 			  iB       : in  std_logic_vector(31 downto 0);
-			  oResult  : out std_logic_vector(31 downto 0)
+			  oResult  => SaidaULA
 		);
 			
 --Instancia ULA Control
 	Alu_Control: entity work.alu_control 
 		port map(
-			bit_30 		: in std_logic;
-			bits_14_12 	: in std_logic_vector(2 downto 0),
-			AluOP 		=> Control_out(18 downto 17),  --REVISAR SE SERA 18 DOWNTO 17 OU 1 DOWNTO 0, PQ A ORDEM DA TABELA PODE ESTAR INVERTIDA
-			AluBits 		: out std_logic_vector(4 downto 0)
+			bit_30 		=> Instr_reg(30),
+			bits_14_12 	=> Instr_reg(14 downto 12),
+			AluOP 		=> Op_ALU,
+			AluBits 		=> AluBits
 		);
 		
 --Instancia Gerador de Imediatos
 	GenImm32: entity work.genImm32
 		port map(
-			instr : in std_logic_vector(31 downto 0);
-			imm32 : out std_logic_vector(31 downto 0));
+			instr => Instr_reg(31 downto 0),
+			imm32 => Imediato
 		);
 
 
