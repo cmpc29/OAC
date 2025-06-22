@@ -20,9 +20,10 @@ architecture Behavioral of Multiciclo is
 	 --Sinais relacionados ao Controle
 	 signal Control_out 		: std_logic_vector(18 downto 0); --sinal saida do controle
 	 signal Op_ALU  			: std_logic_vector(1 downto 0);
-	 signal OrigAlu 			: std_logic_vector(3 downto 0);
+	 signal OrigAluA 			: std_logic_vector(1 downto 0);
+	 signal OrigAluB 			: std_logic_vector(1 downto 0);
     signal EscreveReg 		: std_logic := '0';
-	 signal Mem 				: std_logic_vector(1 downto 0); --???????
+	 signal Mem2Reg 				: std_logic_vector(1 downto 0); --???????
 	 signal EscreveIR 		: std_logic := '0';
 	 signal IouD  				: std_logic := '0';
 	 signal LeMem 				: std_logic := '0';
@@ -31,7 +32,7 @@ architecture Behavioral of Multiciclo is
 	 signal OrigPC 			: std_logic := '0';
 	 signal EscrevePCCond 	: std_logic := '0';
 	 signal wrPC 				: std_logic;  		  --EscrevePC
-	 signal Seq 				: std_logic_vector(1 downto 0); --?????
+	 signal Seq 				: std_logic_vector(1 downto 0); --Nao sao usados
 	 --end
 	 
 	 signal PC_in       : std_logic_vector(31 downto 0) := x"00400000";
@@ -54,9 +55,10 @@ architecture Behavioral of Multiciclo is
 begin
 		--Sinais relacionados ao Controle
 	 Op_ALU  			<= Control_out(18 downto 17);
-	 OrigAlu 			<= Control_out(16 downto 13);
+	 OrigAluA 			<= Control_out(16 downto 15);
+	 OrigAluB 			<= Control_out(14 downto 13);
     EscreveReg 		<= Control_out(12);
-	 Mem 					<= Control_out(11 downto 10); --?????
+	 Mem2Reg				<= Control_out(11 downto 10); --Mem2Reg
 	 EscreveIR 			<= Control_out(9);
 	 IouD  				<= Control_out(8);
 	 LeMem 				<= Control_out(7);
@@ -65,10 +67,8 @@ begin
 	 OrigPC 				<= Control_out(4);
 	 EscrevePCCond 	<= Control_out(3);
 	 wrPC 				<= Control_out(2); 			   --EscrevePC
-	 Seq 					<= Control_out(1 downto 0);   --?????
 		--end
 		
-		--wIouD <= Control_out(8) ACHO QUE ESTA ERRADO
     -- Sinais de saída
 --    PC     <= PC_reg;
 --    Instr  <= Instr_reg;
@@ -91,7 +91,7 @@ begin
 	Control_Unit: entity work.control_unit 
 		port map(
 			clk 				=> clockCPU,
-			opcode 			: in std_logic_vector(6 downto 0),
+			opcode 			=> Instr_reg(6 downto 0),
 			control_signal => Control_out	
 		);
 
@@ -99,7 +99,7 @@ begin
 	Xreg: entity work.xreg
 		port map(
 			iCLK		=> clockCPU;
-			iRST		: in  std_logic;
+			iRST		=> reset; --Ponto de atencao
 			iWREN		=> EscreveReg,
 			iRS1		=> Instr_reg(19 downto 15),
 			iRS2		=> Instr_reg(24 downto 20),
@@ -114,7 +114,7 @@ begin
 --Instancia ULA
 	ALU: entity work.ALU 
 		 port map(
-			  iControl => OrigAlu,
+			  iControl => AluBits,
 			  iA       : in  std_logic_vector(31 downto 0);
 			  iB       : in  std_logic_vector(31 downto 0);
 			  oResult  => SaidaULA
