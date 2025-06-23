@@ -41,7 +41,6 @@ architecture Behavioral of Multiciclo is
     signal pcb_out	  : std_logic_vector(31 downto 0) := (others => '0'); --OutPCback
     signal regout_reg  : std_logic_vector(31 downto 0) := (others => '0'); --??????
     signal estado_reg  : std_logic_vector(3 downto 0)  := (others => '0'); --n usado
-	 signal 
 	 
 	 signal RegDataA_out 			: std_logic_vector(31 downto 0); 			--Out signalA do bd registradores
 	 signal RegDataB_out 			: std_logic_vector(31 downto 0); 			--Out signalB do bd registradores
