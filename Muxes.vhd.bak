@@ -1,0 +1,16 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity Mux2to1 is
+    port (
+        data_in0 : in std_logic_vector();
+        data_in1 : in std_logic_vector();
+        sel      : in std_logic;
+        data_out : out std_logic_vector()
+    );
+end entity Mux2to1;
+
+architecture Behavioral of Mux2to1 is
+begin
+    data_out <= data_in1 when sel = '1' else data_in0;
+end architecture Behavioral;

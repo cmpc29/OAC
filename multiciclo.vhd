@@ -41,6 +41,7 @@ architecture Behavioral of Multiciclo is
     signal pcb_out	  : std_logic_vector(31 downto 0) := (others => '0'); --OutPCback
     signal regout_reg  : std_logic_vector(31 downto 0) := (others => '0'); --??????
     signal estado_reg  : std_logic_vector(3 downto 0)  := (others => '0'); --n usado
+	 signal 
 	 
 	 signal RegDataA_out 			: std_logic_vector(31 downto 0); 			--Out signalA do bd registradores
 	 signal RegDataB_out 			: std_logic_vector(31 downto 0); 			--Out signalB do bd registradores
@@ -135,10 +136,50 @@ begin
 			instr => Instr_reg(31 downto 0),
 			imm32 => Imediato
 		);
-
-
-
-
+--Instancia os Muxes
+Mux3to1_MemD : entity work.Mux3to1
+    port map(
+        data_in0 => SaidaULA,
+        data_in1 => PC_out,
+        data_in2 => MemData,
+        sel      => Mem2Reg,
+        data_out : out std_logic_vector(31 downto 0) --Ligar no iDATA de xregs
+    );
+	 
+Mux3to1_ULAa : entity work.Mux3to1
+    port map(
+        data_in0 => pcb_out,
+        data_in1 => in std_logic_vector(31 downto 0), --saida A bd reg
+        data_in2 => PC_out,
+        sel      => Mem2Reg,
+        data_out : out std_logic_vector(31 downto 0) --Ligar no iDATA de xregs
+    );
+	 
+Mux4to1 : entity work.Mux4to1
+    port map(
+        data_in0 => RegDataB_out,
+        data_in1 => x"00000004", 
+        data_in2 => Imediato,
+        data_in3 => x"00000000", --????
+        sel      => OrigAluB,
+        data_out : out std_logic_vector(31 downto 0) --Ligar
+    );
+	 
+Mux2to1_PCOut: entity work.Mux2to1
+    port map(
+        data_in0 : PC_out,
+        data_in1 : SaidaULA,
+        sel      : IouD,
+        data_out : wIouD
+    );
+	 
+Mux2to1_ULAOut: entity work.Mux2to1
+    port map(
+        data_in0 : UlaOut,
+        data_in1 : SaidaULA,
+        sel      : IouD,
+        data_out : wIouD
+    );
 
 
 PCreg:	regPC port map (
@@ -181,3 +222,9 @@ PCBack:  regPC port map (
     rmem <= MemData when wIouD(28) = '1' else Instr_reg;
 
 end Behavioral;
+
+
+
+
+
+
