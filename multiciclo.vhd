@@ -48,6 +48,7 @@ architecture Behavioral of Multiciclo is
 	 signal RegDataB_out 			: std_logic_vector(31 downto 0); 			
 	 signal Imediato 					: std_logic_vector(31 downto 0); 					--sinal que recebe o imediato
     signal SaidaULA, Leitura2, B : std_logic_vector(31 downto 0); --leitura2 e B?????
+	signal UlaOut 					: std_logic_vector(31 downto 0); --saida da ULA
     signal proximo    				: std_logic_vector(3 downto 0); 				--n usado ?????
 	 signal AluBits 					: std_logic_vector(4 downto 0)
 	
@@ -120,7 +121,7 @@ begin
 			  iControl => AluBits,
 			  iA       : in  std_logic_vector(31 downto 0);
 			  iB       : in  std_logic_vector(31 downto 0);
-			  oResult  => SaidaULA
+			  oResult  => UlaOut
 		);
 			
 --Instancia ULA Control
@@ -253,6 +254,14 @@ end process;
 begin
 	if (rising_edge(clockCPU)) then
 		RegDataB_out <= Dado2;
+	end if;
+end process;
+
+--registrador SaidaULA
+	process (clockCPU)
+begin
+	if (rising_edge(clockCPU)) then
+		SaidaUla <= UlaOut;
 	end if;
 end process;
 
