@@ -52,6 +52,7 @@ architecture Behavioral of Multiciclo is
 	--Sinais relacionados a Memorias de dados e instrucoes
     signal wIouD, MemData, rmem : std_logic_vector(31 downto 0);  --relacionados a memoria
 	 signal Instr_reg   : std_logic_vector(31 downto 0) := (others => '0'); --outRegistradordeInst
+	 signal Instr_reg_mem : std_logic_vector(31 downto 0) := (others => '0'); --outRegistradordeInstMem
 begin
 		--Sinais relacionados ao Controle
 	 Op_ALU  			<= Control_out(18 downto 17);
@@ -204,7 +205,7 @@ PCBack:  regPC port map (
             clock   => clockCPU,
             data    => B,
             wren    => EscreveMem and not wIouD(28),
-            q       => Instr_reg
+            q       => Instr_reg_mem
         );
 
     -- Instância de memória de dados
@@ -218,7 +219,16 @@ PCBack:  regPC port map (
         );
 
     -- Seleção entre instrução ou dado da memória
-    rmem <= MemData when wIouD(28) = '1' else Instr_reg;
+    rmem <= MemData when wIouD(28) = '1' else Instr_reg_mem;
+
+
+	--registrador de instrucoes
+	process (clockCPU)
+begin
+	if (rising_edge(clockCPU)) and (EscreveIR = '1') then
+		instr_reg <= rmem;
+	end if;
+end process;
 
 end Behavioral;
 
