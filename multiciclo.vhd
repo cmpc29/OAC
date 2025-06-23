@@ -42,8 +42,10 @@ architecture Behavioral of Multiciclo is
     signal regout_reg  : std_logic_vector(31 downto 0) := (others => '0'); --??????
     signal estado_reg  : std_logic_vector(3 downto 0)  := (others => '0'); --n usado
 	 
-	 signal RegDataA_out 			: std_logic_vector(31 downto 0); 			--Out signalA do bd registradores
-	 signal RegDataB_out 			: std_logic_vector(31 downto 0); 			--Out signalB do bd registradores
+	 signal Dado1			: std_logic_vector(31 downto 0); 			--Out signalA do bd registradores
+	 signal Dado2 			: std_logic_vector(31 downto 0); 			--Out signalB do bd registradores
+	 signal RegDataA_out 			: std_logic_vector(31 downto 0); 			
+	 signal RegDataB_out 			: std_logic_vector(31 downto 0); 			
 	 signal Imediato 					: std_logic_vector(31 downto 0); 					--sinal que recebe o imediato
     signal SaidaULA, Leitura2, B : std_logic_vector(31 downto 0); --leitura2 e B?????
     signal proximo    				: std_logic_vector(3 downto 0); 				--n usado ?????
@@ -106,8 +108,8 @@ begin
 			iRS2		=> Instr_reg(24 downto 20),
 			iRD		=> Instr_reg(11 downto 7),
 			iDATA		: in  std_logic_vector(31 downto 0);
-			oREGA 	=> RegDataA_out,
-			oREGB 	=> RegDataB_out,
+			oREGA 	=> Dado1,
+			oREGB 	=> Dado2,
 			iDISP		: in  std_logic_vector(4 downto 0);
 			oREGD		: out std_logic_vector(31 downto 0)
 		);
@@ -149,7 +151,7 @@ Mux3to1_MemD : entity work.Mux3to1
 Mux3to1_ULAa : entity work.Mux3to1
     port map(
         data_in0 => pcb_out,
-        data_in1 => in std_logic_vector(31 downto 0), --saida A bd reg
+        data_in1 => RegDataA_out, --saida A bd reg
         data_in2 => PC_out,
         sel      => Mem2Reg,
         data_out : out std_logic_vector(31 downto 0) --Ligar no iDATA de xregs
@@ -235,6 +237,22 @@ end process;
 begin
 	if (rising_edge(clockCPU)) then
 		MemData <= rmem;
+	end if;
+end process;
+
+--registrador A
+	process (clockCPU)
+begin
+	if (rising_edge(clockCPU)) then
+		RegDataA_out <= Dado1;
+	end if;
+end process;
+
+--registrador B
+	process (clockCPU)
+begin
+	if (rising_edge(clockCPU)) then
+		RegDataB_out <= Dado2;
 	end if;
 end process;
 
